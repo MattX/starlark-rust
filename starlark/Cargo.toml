@@ -15,6 +15,9 @@ name = "starlark"
 repository = "https://github.com/facebook/starlark-rust"
 version = "0.12.0"
 
+[features]
+no-time = []
+
 [dependencies]
 anyhow = "1.0.65"
 bumpalo = "3.8"

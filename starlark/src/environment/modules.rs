@@ -23,7 +23,9 @@
 use std::cell::Cell;
 use std::cell::RefCell;
 use std::mem;
+#[cfg(not(feature = "no-time"))]
 use std::time::Duration;
+#[cfg(not(feature = "no-time"))]
 use std::time::Instant;
 
 use allocative::Allocative;
@@ -91,6 +93,7 @@ pub struct FrozenModule {
     /// * optimizations during that evaluation
     /// * freezing and optimizations during freezing
     /// * does not include parsing time
+    #[cfg(not(feature = "no-time"))]
     pub(crate) eval_duration: Duration,
 }
 
@@ -125,6 +128,7 @@ pub struct Module {
     /// * optimizations during that evaluation
     /// * does not include freezing time
     /// * does not include parsing time
+    #[cfg(not(feature = "no-time"))]
     eval_duration: Cell<Duration>,
     /// Field that can be used for any purpose you want.
     extra_value: Cell<Option<Value<'static>>>,
@@ -330,6 +334,7 @@ impl Module {
             names: MutableNames::new(),
             slots: MutableSlots::new(),
             docstring: RefCell::new(None),
+            #[cfg(not(feature = "no-time"))]
             eval_duration: Cell::new(Duration::ZERO),
             extra_value: Cell::new(None),
             heap_profile_on_freeze: Cell::new(None),
@@ -413,10 +418,12 @@ impl Module {
             frozen_heap,
             heap,
             docstring,
+            #[cfg(not(feature = "no-time"))]
             eval_duration,
             extra_value,
             heap_profile_on_freeze,
         } = self;
+        #[cfg(not(feature = "no-time"))]
         let start = Instant::now();
         // This is when we do the GC/freeze, using the module slots as roots
         // Note that we even freeze anonymous slots, since they are accessed by
@@ -454,6 +461,7 @@ impl Module {
             heap: freezer.into_ref(),
             module: frozen_module_ref,
             extra_value,
+            #[cfg(not(feature = "no-time"))]
             eval_duration: start.elapsed() + eval_duration.get(),
         })
     }
@@ -517,6 +525,7 @@ impl Module {
         self.docstring.replace(Some(docstring));
     }
 
+    #[cfg(not(feature = "no-time"))]
     pub(crate) fn add_eval_duration(&self, duration: Duration) {
         self.eval_duration.set(self.eval_duration.get() + duration);
     }
